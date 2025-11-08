@@ -33,8 +33,10 @@ jobs:
       - name: Test hook execution
         run: |
           echo 'print("test 😊 emoji")' > test_file.py
+          set +e
           python hooks/no_emoji.py test_file.py
           EXIT_CODE=$?
+          set -e
           if [ $EXIT_CODE -ne 1 ]; then
             echo "Hook should have detected and fixed emoji"
             exit 1
