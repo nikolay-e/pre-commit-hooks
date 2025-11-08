@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Sequence
 
 import emoji
+from emoji import EmojiMatch
 
 
 def parse_whitelist(allow_emoji_args: list[str]) -> set[str]:
@@ -28,7 +29,7 @@ def parse_whitelist(allow_emoji_args: list[str]) -> set[str]:
     """
     whitelist = set()
     for item in allow_emoji_args:
-        if item.startswith(':') and item.endswith(':'):
+        if item.startswith(":") and item.endswith(":"):
             converted = emoji.emojize(item)
             whitelist.add(converted)
         else:
@@ -36,7 +37,9 @@ def parse_whitelist(allow_emoji_args: list[str]) -> set[str]:
     return whitelist
 
 
-def remove_emoji_with_spaces(text: str, emoji_char: str, start_pos: int, end_pos: int) -> str:
+def remove_emoji_with_spaces(
+    text: str, emoji_char: str, start_pos: int, end_pos: int
+) -> str:
     """
     Remove emoji with smart space handling.
 
@@ -56,21 +59,21 @@ def remove_emoji_with_spaces(text: str, emoji_char: str, start_pos: int, end_pos
     """
     trailing_spaces = 0
     pos = end_pos
-    while pos < len(text) and text[pos] == ' ':
+    while pos < len(text) and text[pos] == " ":
         trailing_spaces += 1
         pos += 1
 
     if trailing_spaces > 0:
-        return text[:start_pos] + text[end_pos + trailing_spaces:]
+        return text[:start_pos] + text[end_pos + trailing_spaces :]
 
     leading_spaces = 0
     pos = start_pos - 1
-    while pos >= 0 and text[pos] == ' ':
+    while pos >= 0 and text[pos] == " ":
         leading_spaces += 1
         pos -= 1
 
     if leading_spaces > 0:
-        return text[:start_pos - leading_spaces] + text[end_pos:]
+        return text[: start_pos - leading_spaces] + text[end_pos:]
 
     return text[:start_pos] + text[end_pos:]
 
@@ -105,16 +108,17 @@ def fix_file(filepath: Path, whitelist: set[str]) -> bool:
                 if emoji_char in whitelist:
                     continue
 
-                start = match.value.start
-                end = match.value.end
+                if isinstance(match.value, EmojiMatch):
+                    start = match.value.start
+                    end = match.value.end
 
-                line = remove_emoji_with_spaces(line, emoji_char, start, end)
-                modified = True
+                    line = remove_emoji_with_spaces(line, emoji_char, start, end)
+                    modified = True
 
         fixed_lines.append(line)
 
     if modified:
-        with open(filepath, 'w', encoding="utf-8") as f:
+        with open(filepath, "w", encoding="utf-8") as f:
             f.writelines(fixed_lines)
 
     return modified
@@ -161,7 +165,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             modified_files.append(filename)
 
     if modified_files:
-        print(f"Fixed {len(modified_files)} file(s) by removing emoji:", file=sys.stderr)
+        print(
+            f"Fixed {len(modified_files)} file(s) by removing emoji:", file=sys.stderr
+        )
         for filename in modified_files:
             print(f"  {filename}", file=sys.stderr)
         return 1

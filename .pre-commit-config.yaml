@@ -1,0 +1,118 @@
+# Pre-commit hooks configuration for pre-commit-hooks repository
+# https://pre-commit.com/
+
+minimum_pre_commit_version: "2.15.0"
+default_install_hook_types: [pre-commit, pre-push]
+default_language_version:
+  python: python3.12
+
+fail_fast: false
+
+repos:
+  # ==================== SECURITY CHECKS (First - Critical) ====================
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: detect-private-key
+        stages: [pre-commit, pre-push]
+
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ["--baseline", ".secrets.baseline"]
+        exclude: package.lock.json
+        stages: [pre-commit, pre-push]
+
+  # ==================== FILE VALIDATION (Fast checks) ====================
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-added-large-files
+        args: ["--maxkb=1000"]
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: check-json
+      - id: check-toml
+      - id: check-ast
+      - id: debug-statements
+      - id: end-of-file-fixer
+        exclude: ^tests/
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: mixed-line-ending
+        args: [--fix=lf]
+
+  # ==================== CODE FORMATTING (Ruff replaces Black+isort) ====================
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.4
+    hooks:
+      - id: ruff-format
+        types: [python]
+        stages: [pre-commit]
+
+  # ==================== CODE LINTING (Ruff replaces Flake8+many others) ====================
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.4
+    hooks:
+      - id: ruff
+        types: [python]
+        args: [--fix, --exit-non-zero-on-fix]
+        stages: [pre-commit, pre-push]
+
+  # ==================== TYPE CHECKING (Pre-push only - slower) ====================
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.13.0
+    hooks:
+      - id: mypy
+        types: [python]
+        additional_dependencies:
+          - emoji>=2.15.0
+          - types-setuptools
+        args: [--strict, --ignore-missing-imports]
+        stages: [pre-push]
+        files: ^hooks/
+
+  # ==================== DOCUMENTATION & CONFIG VALIDATION ====================
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
+    hooks:
+      - id: prettier
+        types_or: [yaml, markdown, json]
+        stages: [pre-commit]
+
+  # ==================== LOCAL CUSTOM HOOKS ====================
+  - repo: local
+    hooks:
+      # Ensure our own no-emoji hook doesn't have emoji in the code
+      - id: no-emoji-in-code
+        name: no-emoji check on own code
+        entry: python hooks/no_emoji.py
+        language: system
+        types: [python]
+        files: ^hooks/
+        exclude: ^tests/
+        stages: [pre-commit]
+
+      # Run pytest on pre-push (too slow for commit)
+      - id: pytest
+        name: pytest
+        entry: bash -c 'source venv/bin/activate && pytest'
+        language: system
+        types: [python]
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+
+# CI configuration (for pre-commit.ci service)
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ""
+  autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
+  autoupdate_schedule: weekly
+  skip: [mypy, pytest]
+  submodules: false

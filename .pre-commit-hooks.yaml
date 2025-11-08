@@ -4,4 +4,4 @@
   entry: hooks/no_emoji.py
   language: python
   types: [text]
-  additional_dependencies: ['emoji>=2.15.0']
+  additional_dependencies: ["emoji>=2.15.0"]

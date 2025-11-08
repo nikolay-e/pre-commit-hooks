@@ -32,14 +32,14 @@ jobs:
 
       - name: Test hook execution
         run: |
-          echo 'print("test")' > test_file.py
+          echo 'print("test 😊 emoji")' > test_file.py
           python hooks/no_emoji.py test_file.py
           EXIT_CODE=$?
-          if [ $EXIT_CODE -eq 0 ]; then
-            echo "Hook should have failed but passed"
+          if [ $EXIT_CODE -ne 1 ]; then
+            echo "Hook should have detected and fixed emoji"
             exit 1
           fi
-          echo "Hook correctly detected emoji"
+          echo "Hook correctly detected and removed emoji"
 
   lint:
     runs-on: ubuntu-latest

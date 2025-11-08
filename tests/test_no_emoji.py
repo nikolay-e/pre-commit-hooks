@@ -6,22 +6,22 @@ from hooks.no_emoji import fix_file, main, parse_whitelist, remove_emoji_with_sp
 
 def test_parse_whitelist_with_characters():
     """Test whitelist parsing with emoji characters."""
-    whitelist = parse_whitelist(['✅', '🚀', '❌'])
-    assert whitelist == {'✅', '🚀', '❌'}
+    whitelist = parse_whitelist(["✅", "🚀", "❌"])
+    assert whitelist == {"✅", "🚀", "❌"}
 
 
 def test_parse_whitelist_with_shortcodes():
     """Test whitelist parsing with shortcodes."""
-    whitelist = parse_whitelist([':check_mark_button:', ':rocket:'])
-    assert '✅' in whitelist
-    assert '🚀' in whitelist
+    whitelist = parse_whitelist([":check_mark_button:", ":rocket:"])
+    assert "✅" in whitelist
+    assert "🚀" in whitelist
 
 
 def test_parse_whitelist_mixed():
     """Test whitelist parsing with mixed formats."""
-    whitelist = parse_whitelist(['✅', ':rocket:'])
-    assert '✅' in whitelist
-    assert '🚀' in whitelist or ':rocket:' in whitelist
+    whitelist = parse_whitelist(["✅", ":rocket:"])
+    assert "✅" in whitelist
+    assert "🚀" in whitelist or ":rocket:" in whitelist
 
 
 def test_remove_emoji_with_trailing_space():
@@ -68,7 +68,9 @@ def test_remove_emoji_at_end():
 
 def test_fix_file_with_trailing_space():
     """Test fixing file removes emoji with trailing space."""
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, encoding="utf-8") as f:
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".py", delete=False, encoding="utf-8"
+    ) as f:
         f.write("# Comment 😊 here\n")
         f.write('print("test")\n')
         filepath = Path(f.name)
@@ -86,7 +88,9 @@ def test_fix_file_with_trailing_space():
 
 def test_fix_file_with_leading_space():
     """Test fixing file removes emoji with leading space when no trailing."""
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, encoding="utf-8") as f:
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".py", delete=False, encoding="utf-8"
+    ) as f:
         f.write("# Comment 😊here\n")
         filepath = Path(f.name)
 
@@ -103,7 +107,9 @@ def test_fix_file_with_leading_space():
 
 def test_fix_file_emoji_only():
     """Test fixing file removes emoji without spaces."""
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, encoding="utf-8") as f:
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".py", delete=False, encoding="utf-8"
+    ) as f:
         f.write("test😊value\n")
         filepath = Path(f.name)
 
@@ -120,7 +126,9 @@ def test_fix_file_emoji_only():
 
 def test_fix_file_multiple_emoji():
     """Test fixing file with multiple emoji on same line."""
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, encoding="utf-8") as f:
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".py", delete=False, encoding="utf-8"
+    ) as f:
         f.write("Success ✅ and party 🎉 time\n")
         filepath = Path(f.name)
 
@@ -137,7 +145,9 @@ def test_fix_file_multiple_emoji():
 
 def test_fix_file_no_emoji():
     """Test fixing file without emoji returns False."""
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, encoding="utf-8") as f:
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".py", delete=False, encoding="utf-8"
+    ) as f:
         f.write("# Clean comment\n")
         f.write('print("test")\n')
         filepath = Path(f.name)
@@ -151,19 +161,21 @@ def test_fix_file_no_emoji():
 
 def test_fix_file_with_whitelist():
     """Test whitelist preserves specific emoji."""
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, encoding="utf-8") as f:
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".py", delete=False, encoding="utf-8"
+    ) as f:
         f.write("# TODO ✅ done, party 🎉 removed\n")
         filepath = Path(f.name)
 
     try:
-        whitelist = {'✅'}
+        whitelist = {"✅"}
         result = fix_file(filepath, whitelist)
         assert result is True
 
         with open(filepath, encoding="utf-8") as f:
             content = f.read()
-        assert '✅' in content
-        assert '🎉' not in content
+        assert "✅" in content
+        assert "🎉" not in content
         assert content == "# TODO ✅ done, party removed\n"
     finally:
         filepath.unlink()
@@ -184,7 +196,9 @@ def test_fix_file_binary():
 
 def test_fix_file_complex_emoji_zwj():
     """Test fixing file with ZWJ sequences (family emoji)."""
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, encoding="utf-8") as f:
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".py", delete=False, encoding="utf-8"
+    ) as f:
         f.write("# Family 👨‍👩‍👧‍👦 test\n")
         filepath = Path(f.name)
 
@@ -194,7 +208,7 @@ def test_fix_file_complex_emoji_zwj():
 
         with open(filepath, encoding="utf-8") as f:
             content = f.read()
-        assert '👨‍👩‍👧‍👦' not in content
+        assert "👨‍👩‍👧‍👦" not in content
         assert content == "# Family test\n"
     finally:
         filepath.unlink()
@@ -202,7 +216,9 @@ def test_fix_file_complex_emoji_zwj():
 
 def test_fix_file_complex_emoji_skin_tone():
     """Test fixing file with skin tone modifiers."""
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, encoding="utf-8") as f:
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".py", delete=False, encoding="utf-8"
+    ) as f:
         f.write("# Wave 👋🏻 bye\n")
         filepath = Path(f.name)
 
@@ -212,7 +228,7 @@ def test_fix_file_complex_emoji_skin_tone():
 
         with open(filepath, encoding="utf-8") as f:
             content = f.read()
-        assert '👋🏻' not in content
+        assert "👋🏻" not in content
         assert content == "# Wave bye\n"
     finally:
         filepath.unlink()
@@ -220,7 +236,9 @@ def test_fix_file_complex_emoji_skin_tone():
 
 def test_fix_file_complex_emoji_flag():
     """Test fixing file with flag emoji (Regional Indicators)."""
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, encoding="utf-8") as f:
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".py", delete=False, encoding="utf-8"
+    ) as f:
         f.write("# USA 🇺🇸 flag\n")
         filepath = Path(f.name)
 
@@ -230,7 +248,7 @@ def test_fix_file_complex_emoji_flag():
 
         with open(filepath, encoding="utf-8") as f:
             content = f.read()
-        assert '🇺🇸' not in content
+        assert "🇺🇸" not in content
         assert content == "# USA flag\n"
     finally:
         filepath.unlink()
@@ -244,7 +262,9 @@ def test_main_no_files():
 
 def test_main_with_clean_file():
     """Test main with clean file returns 0."""
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, encoding="utf-8") as f:
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".py", delete=False, encoding="utf-8"
+    ) as f:
         f.write('print("clean")\n')
         filepath = Path(f.name)
 
@@ -257,7 +277,9 @@ def test_main_with_clean_file():
 
 def test_main_with_emoji_file():
     """Test main with emoji file returns 1 and fixes file."""
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, encoding="utf-8") as f:
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".py", delete=False, encoding="utf-8"
+    ) as f:
         f.write('print("test 🔥 here")\n')
         filepath = Path(f.name)
 
@@ -267,7 +289,7 @@ def test_main_with_emoji_file():
 
         with open(filepath, encoding="utf-8") as f:
             content = f.read()
-        assert '🔥' not in content
+        assert "🔥" not in content
         assert content == 'print("test here")\n'
     finally:
         filepath.unlink()
@@ -275,34 +297,38 @@ def test_main_with_emoji_file():
 
 def test_main_with_whitelist():
     """Test main respects whitelist."""
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, encoding="utf-8") as f:
-        f.write('# TODO ✅ done\n')
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".py", delete=False, encoding="utf-8"
+    ) as f:
+        f.write("# TODO ✅ done\n")
         filepath = Path(f.name)
 
     try:
-        result = main(['--allow-emoji', '✅', str(filepath)])
+        result = main(["--allow-emoji", "✅", str(filepath)])
         assert result == 0
 
         with open(filepath, encoding="utf-8") as f:
             content = f.read()
-        assert '✅' in content
+        assert "✅" in content
     finally:
         filepath.unlink()
 
 
 def test_main_with_whitelist_shortcode():
     """Test main respects whitelist with shortcodes."""
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, encoding="utf-8") as f:
-        f.write('# Rocket 🚀 test\n')
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".py", delete=False, encoding="utf-8"
+    ) as f:
+        f.write("# Rocket 🚀 test\n")
         filepath = Path(f.name)
 
     try:
-        result = main(['--allow-emoji', ':rocket:', str(filepath)])
+        result = main(["--allow-emoji", ":rocket:", str(filepath)])
         assert result == 0
 
         with open(filepath, encoding="utf-8") as f:
             content = f.read()
-        assert '🚀' in content
+        assert "🚀" in content
     finally:
         filepath.unlink()
 
@@ -312,7 +338,9 @@ def test_main_multiple_files():
     files = []
     try:
         for i in range(3):
-            f = tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, encoding="utf-8")
+            f = tempfile.NamedTemporaryFile(
+                mode="w", suffix=".py", delete=False, encoding="utf-8"
+            )
             if i == 0:
                 f.write('print("clean")\n')
             else:
@@ -324,10 +352,10 @@ def test_main_multiple_files():
         assert result == 1
 
         with open(files[0], encoding="utf-8") as f:
-            assert '😊' not in f.read()
+            assert "😊" not in f.read()
 
         with open(files[1], encoding="utf-8") as f:
-            assert '😊' not in f.read()
+            assert "😊" not in f.read()
     finally:
         for filepath in files:
             filepath.unlink()
