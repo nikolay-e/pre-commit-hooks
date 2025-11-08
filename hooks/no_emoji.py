@@ -11,7 +11,7 @@ Removes emoji with smart space handling:
 import argparse
 import sys
 from pathlib import Path
-from typing import Sequence
+from typing import Optional, Sequence
 
 import emoji
 from emoji import EmojiMatch
@@ -124,7 +124,7 @@ def fix_file(filepath: Path, whitelist: set[str]) -> bool:
     return modified
 
 
-def main(argv: Sequence[str] | None = None) -> int:
+def main(argv: Optional[Sequence[str]] = None) -> int:
     """
     Main entry point for no-emoji hook.
 
