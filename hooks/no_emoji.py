@@ -11,13 +11,13 @@ Removes emoji with smart space handling:
 import argparse
 import sys
 from pathlib import Path
-from typing import Optional, Sequence
+from typing import List, Optional, Sequence, Set
 
 import emoji
 from emoji import EmojiMatch
 
 
-def parse_whitelist(allow_emoji_args: list[str]) -> set[str]:
+def parse_whitelist(allow_emoji_args: List[str]) -> Set[str]:
     """
     Parse whitelist arguments into set of emoji characters.
 
@@ -78,7 +78,7 @@ def remove_emoji_with_spaces(
     return text[:start_pos] + text[end_pos:]
 
 
-def fix_file(filepath: Path, whitelist: set[str]) -> bool:
+def fix_file(filepath: Path, whitelist: Set[str]) -> bool:
     """
     Fix file in-place by removing emoji and surrounding spaces.
 
