@@ -73,6 +73,21 @@ repos:
         stages: [pre-push]
         files: ^hooks/
 
+  # ==================== DUPLICATE CODE DETECTION ====================
+  - repo: https://github.com/PyCQA/pylint
+    rev: v3.3.3
+    hooks:
+      - id: pylint
+        name: pylint (duplicate code detection)
+        args:
+          - "--disable=all"
+          - "--enable=duplicate-code"
+          - "--min-similarity-lines=6"
+          - "--ignore-comments=yes"
+          - "--ignore-docstrings=yes"
+          - "--ignore-imports=yes"
+        files: ^hooks/
+
   # ==================== DOCUMENTATION & CONFIG VALIDATION ====================
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v4.0.0-alpha.8
