@@ -1,7 +1,7 @@
 - id: no-emoji
   name: Remove emoji from code
   description: Automatically removes emoji characters from source code files with smart space handling
-  entry: hooks/no_emoji.py
+  entry: no-emoji
   language: python
   types: [text]
   additional_dependencies: ["emoji>=2.15.0"]
